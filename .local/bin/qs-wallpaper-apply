@@ -1,0 +1,234 @@
+#!/usr/bin/env python3
+"""Apply an indexed Waywallen wallpaper through its local WebSocket API."""
+
+import hashlib
+import base64
+import os
+import re
+import socket
+import sqlite3
+import struct
+import sys
+from pathlib import Path
+
+
+HOME = Path.home()
+DB_PATH = HOME / ".local/share/waywallen/waywallen-v2.db"
+LOG_PATH = HOME / ".local/state/waywallen/logs/daemon/waywallen-current.log"
+
+
+def fail(message):
+    print(message, file=sys.stderr)
+    raise SystemExit(1)
+
+
+def varint(value):
+    result = bytearray()
+    while value > 0x7F:
+        result.append((value & 0x7F) | 0x80)
+        value >>= 7
+    result.append(value)
+    return bytes(result)
+
+
+def field_bytes(number, value):
+    return varint((number << 3) | 2) + varint(len(value)) + value
+
+
+def read_varint(data, offset):
+    value = 0
+    shift = 0
+    while offset < len(data):
+        byte = data[offset]
+        offset += 1
+        value |= (byte & 0x7F) << shift
+        if byte < 0x80:
+            return value, offset
+        shift += 7
+        if shift >= 70:
+            break
+    raise ValueError("invalid protobuf varint")
+
+
+def fields(data):
+    offset = 0
+    while offset < len(data):
+        key, offset = read_varint(data, offset)
+        number, wire_type = key >> 3, key & 7
+        if wire_type == 0:
+            value, offset = read_varint(data, offset)
+        elif wire_type == 2:
+            size, offset = read_varint(data, offset)
+            value = data[offset:offset + size]
+            offset += size
+        elif wire_type == 1:
+            value = data[offset:offset + 8]
+            offset += 8
+        elif wire_type == 5:
+            value = data[offset:offset + 4]
+            offset += 4
+        else:
+            raise ValueError("unsupported protobuf wire type")
+        yield number, wire_type, value
+
+
+def frame(sock, pending=b""):
+    data = bytearray(pending)
+
+    def take(count):
+        while len(data) < count:
+            part = sock.recv(max(4096, count - len(data)))
+            if not part:
+                raise ConnectionError("Waywallen closed the WebSocket connection")
+            data.extend(part)
+        result = bytes(data[:count])
+        del data[:count]
+        return result
+
+    first, second = take(2)
+    opcode = first & 0x0F
+    length = second & 0x7F
+    if length == 126:
+        length = struct.unpack("!H", take(2))[0]
+    elif length == 127:
+        length = struct.unpack("!Q", take(8))[0]
+    mask = take(4) if second & 0x80 else None
+    payload = take(length)
+    if mask:
+        payload = bytes(byte ^ mask[i % 4] for i, byte in enumerate(payload))
+    return opcode, payload, bytes(data)
+
+
+def recv_exact(sock, count):
+    data = bytearray()
+    while len(data) < count:
+        part = sock.recv(count - len(data))
+        if not part:
+            raise ConnectionError("Waywallen closed the WebSocket connection")
+        data.extend(part)
+    return bytes(data)
+
+
+def websocket_send(sock, payload, opcode=2):
+    mask = os.urandom(4)
+    length = len(payload)
+    if length < 126:
+        header = bytes((0x80 | opcode, 0x80 | length))
+    elif length < 65536:
+        header = bytes((0x80 | opcode, 0x80 | 126)) + struct.pack("!H", length)
+    else:
+        header = bytes((0x80 | opcode, 0x80 | 127)) + struct.pack("!Q", length)
+    masked = bytes(byte ^ mask[i % 4] for i, byte in enumerate(payload))
+    sock.sendall(header + mask + masked)
+
+
+def apply_request(port, wallpaper_id):
+    key = base64.b64encode(os.urandom(16)).decode("ascii")
+    expected = base64.b64encode(
+        hashlib.sha1((key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").encode()).digest()
+    ).decode("ascii")
+    with socket.create_connection(("127.0.0.1", port), timeout=3) as sock:
+        sock.settimeout(8)
+        sock.sendall((
+            "GET / HTTP/1.1\r\n"
+            f"Host: 127.0.0.1:{port}\r\n"
+            "Upgrade: websocket\r\n"
+            "Connection: Upgrade\r\n"
+            f"Sec-WebSocket-Key: {key}\r\n"
+            "Sec-WebSocket-Version: 13\r\n\r\n"
+        ).encode("ascii"))
+        response = bytearray()
+        while b"\r\n\r\n" not in response:
+            chunk = sock.recv(4096)
+            if not chunk:
+                fail("Waywallen did not complete the local WebSocket handshake")
+            response.extend(chunk)
+            if len(response) > 16384:
+                fail("Unexpectedly large Waywallen WebSocket handshake")
+        headers = bytes(response).split(b"\r\n\r\n", 1)[0].decode("latin1")
+        pending = bytes(response).split(b"\r\n\r\n", 1)[1]
+        status_line = headers.splitlines()[0] if headers else "empty response"
+        if " 101 " not in status_line:
+            detail = " | ".join(line.strip() for line in headers.splitlines()[1:])
+            fail(
+                "Waywallen's local API refused the WebSocket connection "
+                f"({status_line})" + (f": {detail}" if detail else "")
+            )
+        accepted = next(
+            (line.split(":", 1)[1].strip() for line in headers.splitlines()
+             if line.lower().startswith("sec-websocket-accept:")),
+            "",
+        )
+        if not accepted:
+            fail("Waywallen's local API returned an incomplete WebSocket handshake (missing Sec-WebSocket-Accept)")
+        if accepted != expected:
+            fail("Waywallen returned an invalid WebSocket handshake response")
+
+        apply_body = field_bytes(1, wallpaper_id.encode("utf-8"))
+        request = varint(8) + varint(1) + field_bytes(22, apply_body)
+        websocket_send(sock, request)
+
+        while True:
+            opcode, payload, pending = frame(sock, pending)
+            if opcode == 8:
+                fail("Waywallen closed before confirming the wallpaper")
+            if opcode == 9:
+                websocket_send(sock, payload, opcode=10)
+                continue
+            if opcode != 2:
+                continue
+            for number, wire_type, value in fields(payload):
+                if number != 1 or wire_type != 2:
+                    continue
+                response_fields = list(fields(value))
+                response_id = next((v for n, w, v in response_fields if n == 1 and w == 0), 0)
+                if response_id != 1:
+                    continue
+                error_code = next((v for n, w, v in response_fields if n == 4 and w == 0), 0)
+                message = next((v.decode("utf-8", "replace") for n, w, v in response_fields if n == 3 and w == 2), "")
+                if error_code:
+                    fail(message or f"Waywallen rejected the wallpaper (error {error_code})")
+                return
+
+
+def main():
+    if len(sys.argv) != 2:
+        fail("Usage: qs-wallpaper-apply /path/to/wallpaper")
+    image = Path(sys.argv[1]).expanduser().resolve()
+    if not image.is_file():
+        fail("Wallpaper file not found")
+    if not DB_PATH.is_file() or not LOG_PATH.is_file():
+        fail("Waywallen is not running or its local catalog is unavailable")
+
+    try:
+        with sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True) as db:
+            row = db.execute(
+                "SELECT item.id FROM item JOIN library ON item.library_id = library.id "
+                "WHERE (rtrim(library.path, '/') || '/' || item.path) = ? LIMIT 1",
+                (str(image),),
+            ).fetchone()
+    except sqlite3.Error as error:
+        fail(f"Could not look up the wallpaper in Waywallen: {error}")
+    if not row:
+        fail("This image is not indexed in Waywallen yet. Refresh its library and try again.")
+
+    try:
+        log = LOG_PATH.read_text(errors="replace")
+    except OSError as error:
+        fail(f"Could not read Waywallen's local status: {error}")
+    ports = re.findall(r"ws control plane listening on 127\.0\.0\.1:(\d+)", log)
+    if not ports:
+        fail("Could not find Waywallen's local control port. Restart Waywallen and try again.")
+    try:
+        apply_request(int(ports[-1]), str(row[0]))
+    except (OSError, TimeoutError, ConnectionError, ValueError) as error:
+        fail(f"Could not apply the wallpaper through Waywallen: {error}")
+
+    # Recoloring is intentionally left to the caller (the theme picker runs
+    # Matugen once). Spawning a second Matugen here raced with the caller and
+    # produced mismatched theme files.
+    print("applied")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -u
+
+session_id="${XDG_SESSION_ID:-}"
+if [[ -z "$session_id" ]]; then
+	session_id="$(loginctl list-sessions --no-legend | awk -v user="${USER:-$(id -un)}" '$3 == user && $6 == "active" { print $1; exit }')"
+fi
+
+if [[ -n "$session_id" ]] && loginctl terminate-session "$session_id"; then
+	exit 0
+fi
+
+# Keep logout usable from sessions not managed by logind/greetd.
+exec hyprctl dispatch exit

@@ -1,0 +1,14 @@
+affine-bin-debug
+anytype-bin
+cbonsai
+cbonsai-debug
+lavat
+lavat-debug
+pipes.sh
+python312
+tt-bin
+tt-bin-debug
+vscodium-bin
+waywallen-bin
+yay
+yay-debug

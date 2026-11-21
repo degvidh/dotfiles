@@ -1,0 +1,15 @@
+* {
+    background: #141318;
+    background-alt: #201f25;
+    background-high: #2a292f;
+
+    foreground: #e5e1e9;
+    foreground-alt: #c9c5d0;
+
+    primary: #c8bfff;
+    on-primary: #30285f;
+
+    secondary: #c9c3dc;
+    outline: #928f99;
+    error: #ffb4ab;
+}

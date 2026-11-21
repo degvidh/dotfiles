@@ -1,0 +1,6 @@
+[Unit]
+Description=Regenerate matugen colors from the current waywallen wallpaper
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/matugen-from-waywallen

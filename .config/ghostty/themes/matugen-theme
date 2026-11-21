@@ -1,0 +1,26 @@
+# Ghostty Color Palette via Matugen
+background = #141318
+foreground = #e5e1e9
+selection-background = #35343a
+selection-foreground = #e5e1e9
+cursor-color = #c8bfff
+
+# Normal ANSI Colors (0-7)
+palette = 0=#201f25
+palette = 1=#ffb4ab
+palette = 2=#c8bfff
+palette = 3=#ecb8ce
+palette = 4=#c9c3dc
+palette = 5=#5e5791
+palette = 6=#928f99
+palette = 7=#c9c5d0
+
+# Bright ANSI Colors (8-15)
+palette = 8=#35343a
+palette = 9=#93000a
+palette = 10=#463f77
+palette = 11=#613b4d
+palette = 12=#474459
+palette = 13=#e5e1e9
+palette = 14=#48464f
+palette = 15=#e5e1e9

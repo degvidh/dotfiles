@@ -1,0 +1,13 @@
+{
+  "background": "#141318",
+  "surface": "#201f25",
+  "surfaceHigh": "#2a292f",
+  "text": "#e5e1e9",
+  "textMuted": "#c9c5d0",
+  "primary": "#8d85c6",
+  "primaryInk": "#131023",
+  "secondary": "#c9c3dc",
+  "outline": "#928f99",
+  "error": "#ffb4ab",
+  "onError": "#690005"
+}

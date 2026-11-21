@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# Regenerate matugen colors from the wallpaper waywallen currently displays.
+set -uo pipefail
+
+CONF="$HOME/.config/waywallen/config.toml"
+DB="$HOME/.local/share/waywallen/waywallen-v2.db"
+
+# Ground truth: the file the running waywallen image renderer displays.
+img=$(pgrep -af waywallen-image-renderer 2>/dev/null | head -n1 | sed -n 's/.*--path //p')
+
+# Fallback: try each last_wallpaper id (newest first) against the catalog.
+if [ -z "$img" ]; then
+    for id in $(sed -n 's/^last_wallpaper = "\([0-9]*\)"/\1/p' "$CONF" | sort -u | tac); do
+        img=$(python3 - "$DB" "$id" <<'PY'
+import sqlite3, sys
+db = sqlite3.connect(f"file:{sys.argv[1]}?mode=ro", uri=True)
+row = db.execute(
+    "SELECT rtrim(library.path,'/')||'/'||item.path FROM item "
+    "JOIN library ON item.library_id = library.id WHERE item.id = ?",
+    (sys.argv[2],),
+).fetchone()
+print(row[0] if row else "")
+PY
+)
+        [ -n "$img" ] && break
+    done
+fi
+
+if [ -z "$img" ]; then
+    echo "no wallpaper found (no image renderer running, no indexed id in config)"
+    exit 0
+fi
+
+# Wallpaper Engine web wallpapers are directories. Prefer a user-supplied
+# screenshot when the live wallpaper's colors differ from its default preview.
+if [ -d "$img" ]; then
+    wallpaper_id=$(basename "$img")
+    for override in "$HOME/.config/matugen/wallpaper-sources/$wallpaper_id".{jpg,jpeg,png,webp}; do
+        if [ -f "$override" ]; then
+            img="$override"
+            break
+        fi
+    done
+
+    # Otherwise use the animated preview as the color source.
+    if [ -d "$img" ]; then
+        for preview in "$img"/preview.gif "$img"/preview.png "$img"/preview.jpg "$img"/preview.jpeg "$img"/preview.webp; do
+            if [ -f "$preview" ]; then
+                img="$preview"
+                break
+            fi
+        done
+    fi
+fi
+
+case "${img,,}" in
+*.png | *.jpg | *.jpeg | *.webp | *.bmp)
+    exec matugen image "$img" --mode dark --prefer saturation
+    ;;
+*.mp4 | *.mkv | *.webm | *.mov | *.avi | *.gif)
+    cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/matugen/waywallen"
+    mkdir -p "$cache_dir" || exit 1
+    key=$(printf '%s' "$img" | sha256sum | cut -d' ' -f1)
+    frame="$cache_dir/$key.png"
+
+    # Reuse the frame until the source video or animated preview changes.
+    if [ ! -s "$frame" ] || [ "$img" -nt "$frame" ]; then
+        temporary="$cache_dir/$key.tmp.$$.png"
+        rm -f "$temporary"
+        # Skip short intros when possible, then retry from the first frame for
+        # very short clips. Matugen only accepts images, not video files.
+        if ! ffmpeg -hide_banner -loglevel error -nostdin -y -ss 1 -i "$img" \
+            -frames:v 1 -vf 'scale=1280:-2' -update 1 "$temporary" || [ ! -s "$temporary" ]; then
+            rm -f "$temporary"
+            if ! ffmpeg -hide_banner -loglevel error -nostdin -y -i "$img" \
+                -frames:v 1 -vf 'scale=1280:-2' -update 1 "$temporary" || [ ! -s "$temporary" ]; then
+                rm -f "$temporary"
+                echo "could not extract a color-source frame from: $img" >&2
+                exit 1
+            fi
+        fi
+        mv "$temporary" "$frame"
+    fi
+
+    exec matugen image "$frame" --mode dark --prefer saturation
+    ;;
+*)
+    echo "no usable image or animated preview found, skipping matugen: $img"
+    ;;
+esac

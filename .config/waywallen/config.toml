@@ -1,0 +1,91 @@
+[global]
+last_wallpaper = "41825"
+queue_mode = "sequential"
+rotation_secs = 0
+audio_fade_ms = 500
+mute_when_other_audio = false
+audio_capture_enabled = true
+manual_muted = false
+wallpaper_filter_json = '{"filters":[],"filter_logics":[]}'
+wallpaper_skip_types = []
+wallpaper_filter_tags = []
+wallpaper_skip_content_ratings = []
+plugin_update_notifications = true
+duplicate_renderers_for_same_wallpaper = false
+pointer_forwarding_enabled = true
+autostart_enabled = false
+hide_tray_icon = false
+debug_logging_enabled = false
+
+[global.renderer]
+enable_audio = false
+volume = 100
+
+[global.layout]
+fillmode = "preserve_aspect_crop"
+align = "center"
+rotation = "normal"
+
+[global.layout.location]
+x = 50
+y = 50
+
+[global.auto_replay]
+any_window = "mute"
+focused = "none"
+maximized = "none"
+fullscreen = "none"
+session_locked = "stop"
+session_inactive = "stop"
+
+[global.pause_effect]
+kind = "none"
+
+[global.pause_effect.blur]
+radius = 64
+
+[[global.wallpaper_sorts]]
+key = 1
+direction = 1
+
+[plugin.waywallen-image]
+resolution = "0"
+render_node = ""
+fps = "30"
+
+[plugin.wescene-renderer]
+msaa = "1"
+resolution = "2"
+render_node = ""
+custom_extent = "1080"
+enable_audio = "true"
+hwdec = "auto"
+fps = "30"
+volume = "100"
+
+[plugin.weweb-renderer]
+resolution = "2"
+remote_debugging_port = "0"
+volume = "100"
+shared_texture_enabled = "true"
+enable_audio = "true"
+render_node = ""
+fps = "30"
+custom_extent = "1080"
+
+[plugin.waywallen-video]
+hwdec = "auto"
+fps = "30"
+volume = "100"
+resolution = "0"
+loop_file = "inf"
+render_node = ""
+enable_audio = "true"
+
+[display.layer-963a1e152f55f0feeec68ef592f4220f]
+last_wallpaper = "864"
+
+[display.layer-368f80f7faf5ae03f7b619327f2f08fd]
+last_wallpaper = "41825"
+
+[canvas]

@@ -1,0 +1,16 @@
+Snapshot date: 2026-11-16
+Kernel: 7.3.4-arch1-2
+hyprland 0.57.2-1
+quickshell 0.3.2-1
+matugen 4.2.0-1
+waywallen-bin 0.3.8.8550258-1
+sddm 0.21.0-7
+ghostty 1.4.0-1
+fish 4.9.3-1
+rofi 2.1.1-1
+neovim 0.12.6-1
+ffmpeg 2:9.0.2-3
+qt6-declarative 6.12.0-4
+qt6-svg 6.12.0-1
+Pixie SDDM source: https://github.com/xCaptaiN09/pixie-sddm
+Pixie SDDM commit: 1e1a863761f742e8d509d569382b17c112e29fdc

@@ -1,0 +1,93 @@
+/* ═══════════════════════════════════════════════════════════════
+   Ghostty Tab Bar — seamless via Ghostty's own CSS variables
+   Ghostty paints the strip with:
+     .window headerbar { background-color: var(--headerbar-bg-color) }
+   where --headerbar-bg-color = opaque theme bg. We override the
+   VARIABLE with the same color at the same alpha as the terminal
+   (background-opacity = 0.80) -> bar == terminal, exactly.
+   ═══════════════════════════════════════════════════════════════ */
+
+@define-color gt-fg      #e2e2e9;
+@define-color gt-accent  #b1c5ff;
+
+:root:root {
+    /* 0.80 == background-opacity in the Ghostty config */
+    --headerbar-bg-color: alpha(#121318, 0.80);
+}
+
+/* ── Don't double-paint: bar chrome itself stays clear ────────── */
+headerbar,
+tabbar,
+tabbar > box {
+    background: transparent;
+    background-image: none;
+    box-shadow: none;
+    border: none;
+    outline: none;
+}
+
+headerbar { min-height: 0; }
+
+tabbar > box {
+    padding: 3px 6px;
+    min-height: 0;
+}
+
+/* ── Inactive tabs: quiet pills ───────────────────────────────── */
+tabbar tabbox tab,
+tabbar tabbox tab.background,
+tabbar tabbox tab > .background {
+    background: alpha(@gt-fg, 0.05);
+    color: alpha(@gt-fg, 0.35);
+    border-radius: 8px;
+    padding: 2px 10px;
+    margin: 0 2px;
+    min-height: 20px;
+    box-shadow: none;
+}
+
+/* (no hover effect on tabs — requested) */
+
+/* ── Active tab: accent tint + hairline ───────────────────────── */
+tabbar tabbox tab:selected,
+tabbar tabbox tab:checked,
+tabbar tabbox tab > .background:selected,
+tabbar tabbox tab > .background:checked {
+    background: alpha(@gt-accent, 0.10);
+    color: @gt-accent;
+    box-shadow: inset 0 0 0 1px alpha(@gt-accent, 0.25);
+}
+
+/* ── Close button: round, red on hover ────────────────────────── */
+tabbar tabbox tab button {
+    min-width: 16px;
+    min-height: 16px;
+    padding: 0;
+    margin-left: 5px;
+    border-radius: 999px;
+    background: transparent;
+    color: alpha(@gt-fg, 0.40);
+}
+
+tabbar tabbox tab button:hover {
+    background: alpha(#ff5c57, 0.25);
+    color: #ff8a85;
+}
+
+/* ── New-tab (+) button: ghost pill ───────────────────────────── */
+tabbar > box > button,
+tabbar > button {
+    min-width: 22px;
+    min-height: 22px;
+    margin: 0 2px;
+    padding: 0;
+    border-radius: 7px;
+    background: alpha(@gt-fg, 0.05);
+    color: alpha(@gt-fg, 0.60);
+}
+
+tabbar > box > button:hover,
+tabbar > button:hover {
+    background: alpha(@gt-accent, 0.15);
+    color: @gt-accent;
+}

@@ -1,0 +1,18 @@
+# Temă completă Fish generată automat de Matugen
+fish_color_normal #e5e1e9
+fish_color_command #c8bfff --bold
+fish_color_keyword #ecb8ce
+fish_color_quote #c9c3dc
+fish_color_redirection #c9c3dc
+fish_color_end #928f99
+
+fish_color_error #ffb4ab --bold --background=#93000a
+
+fish_color_param #c9c5d0
+fish_color_comment #928f99
+fish_color_selection --background=#35343a
+fish_color_search_match --background=#35343a
+fish_color_operator #c8bfff
+fish_color_escape #5e5791
+fish_color_autosuggestion #928f99
+fish_color_cancel #93000a

@@ -1,0 +1,25 @@
+# Editor and OS noise
+.DS_Store
+*.swp
+*.swo
+*~
+*.save
+*.save.*
+*.bak
+
+# Runtime state, credentials, and caches must never be committed
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.log
+*.cookie
+cookies
+.cache/
+.local/share/
+.config/fish/fish_variables
+.config/strata/tabs.toml
+.config/quickshell/.write-check
+
+# Dependency directories
+node_modules/

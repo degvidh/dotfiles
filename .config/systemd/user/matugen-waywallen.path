@@ -1,0 +1,9 @@
+[Unit]
+Description=Watch waywallen for wallpaper changes
+
+[Path]
+PathChanged=%h/.config/waywallen/config.toml
+Unit=matugen-waywallen.service
+
+[Install]
+WantedBy=default.target
