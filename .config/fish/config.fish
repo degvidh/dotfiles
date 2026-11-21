@@ -3,12 +3,9 @@ starship init fish | source
 # Incarca culorile dinamice generate de Matugen
 source ~/.config/fish/functions/matugen_colors.fish
 
-# Pornire automata Hyprland la logarea in TTY1 (Sintaxa Fish)
-if status is-login
-    if test -z "$DISPLAY" -a "$XDG_VTNR" = 1
-        exec start-hyprland
-    end
-end
+# NOTE: the old TTY1 autostart (`exec start-hyprland`) was removed on 2026-11-21.
+# greetd + noctalia-greeter handle session login now, and the autostart hijacked
+# `niri-session` (which re-execs through this shell) into starting Hyprland.
 
 # --- Interactive Session Configurations ---
 if status is-interactive
