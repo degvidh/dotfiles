@@ -1,13 +1,13 @@
 {
-  "background": "#141318",
-  "surface": "#201f25",
-  "surfaceHigh": "#2a292f",
-  "text": "#e5e1e9",
-  "textMuted": "#c9c5d0",
-  "primary": "#8d85c6",
-  "primaryInk": "#131023",
-  "secondary": "#c9c3dc",
-  "outline": "#928f99",
+  "background": "#0e1415",
+  "surface": "#1b2122",
+  "surfaceHigh": "#252b2c",
+  "text": "#dee3e5",
+  "textMuted": "#bfc8ca",
+  "primary": "#a6a6a6",
+  "primaryInk": "#1a1a1a",
+  "secondary": "#b1cbd0",
+  "outline": "#899294",
   "error": "#ffb4ab",
   "onError": "#690005"
 }

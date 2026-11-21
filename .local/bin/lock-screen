@@ -5,8 +5,8 @@ Style: blurred live screenshot backdrop + a clean centered stack
 (time, date, password field). Set LOCK_SCREEN_NOLOCK=1 to only
 regenerate the config without locking.
 
-NOTE: the boot login screen (SDDM/Pixie) is configured separately,
-see /etc/sddm.conf.d/20-pixie.conf.
+NOTE: the boot login screen (noctalia greeter) is configured separately,
+see /var/lib/noctalia-greeter/greeter.toml.
 """
 
 import json

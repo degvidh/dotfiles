@@ -13,56 +13,56 @@
         {
             "type": "title",
             "color": {
-                "user": "#c8bfff"
+                "user": "#82d3e0"
             }
         },
         "separator",
         {
             "type": "os",
             "key": {
-                "color": "#c8bfff"
+                "color": "#82d3e0"
             }
         },
         {
             "type": "host",
             "key": {
-                "color": "#c8bfff"
+                "color": "#82d3e0"
             }
         },
         {
             "type": "packages",
             "key": {
-                "color": "#c8bfff"
+                "color": "#82d3e0"
             }
         },
         {
             "type": "cpu",
             "key": {
-                "color": "#c8bfff"
+                "color": "#82d3e0"
             }
         },
         {
             "type": "gpu",
             "key": {
-                "color": "#c8bfff"
+                "color": "#82d3e0"
             }
         },
         {
             "type": "physicalmemory",
             "key": {
-                "color": "#c8bfff"
+                "color": "#82d3e0"
             }
         },
         {
             "type": "swap",
             "key": {
-                "color": "#c8bfff"
+                "color": "#82d3e0"
             }
         },
         {
             "type": "disk",
             "key": {
-                "color": "#c8bfff"
+                "color": "#82d3e0"
             }
         },
         "break",

@@ -44,6 +44,7 @@ show_hidden = true
 show_keybinding_hints = true
 show_thumbnails = true
 sidebar_compact = false
+sidebar_devices_collapsed = false
 sidebar_expanded = true
 sidebar_order = [
     "home",
@@ -89,9 +90,6 @@ modified = 150
 name = 513
 size = 90
 type = 120
-
-[custom_icons]
-"/home/david/Desktop" = "strata-monitor"
 
 [device_labels]
 "volume:386de221-c1de-4dda-b844-2c62e5b46bac" = "Disk D"

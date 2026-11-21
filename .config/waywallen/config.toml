@@ -1,5 +1,5 @@
 [global]
-last_wallpaper = "41825"
+last_wallpaper = "43058"
 queue_mode = "sequential"
 rotation_secs = 0
 audio_fade_ms = 500
@@ -31,10 +31,10 @@ x = 50
 y = 50
 
 [global.auto_replay]
-any_window = "mute"
-focused = "none"
-maximized = "none"
-fullscreen = "none"
+any_window = "stop"
+focused = "stop"
+maximized = "stop"
+fullscreen = "stop"
 session_locked = "stop"
 session_inactive = "stop"
 
@@ -50,42 +50,42 @@ direction = 1
 
 [plugin.waywallen-image]
 resolution = "0"
-render_node = ""
 fps = "30"
-
-[plugin.wescene-renderer]
-msaa = "1"
-resolution = "2"
 render_node = ""
-custom_extent = "1080"
-enable_audio = "true"
-hwdec = "auto"
-fps = "30"
-volume = "100"
 
 [plugin.weweb-renderer]
-resolution = "2"
-remote_debugging_port = "0"
 volume = "100"
-shared_texture_enabled = "true"
-enable_audio = "true"
-render_node = ""
-fps = "30"
 custom_extent = "1080"
+render_node = ""
+remote_debugging_port = "0"
+shared_texture_enabled = "true"
+fps = "30"
+resolution = "2"
+enable_audio = "true"
+
+[plugin.wescene-renderer]
+hwdec = "auto"
+enable_audio = "true"
+msaa = "1"
+custom_extent = "1080"
+fps = "30"
+volume = "100"
+render_node = ""
+resolution = "2"
 
 [plugin.waywallen-video]
-hwdec = "auto"
-fps = "30"
-volume = "100"
 resolution = "0"
-loop_file = "inf"
-render_node = ""
+fps = "30"
 enable_audio = "true"
+hwdec = "auto"
+loop_file = "inf"
+volume = "100"
+render_node = ""
 
 [display.layer-963a1e152f55f0feeec68ef592f4220f]
 last_wallpaper = "864"
 
 [display.layer-368f80f7faf5ae03f7b619327f2f08fd]
-last_wallpaper = "41825"
+last_wallpaper = "43058"
 
 [canvas]

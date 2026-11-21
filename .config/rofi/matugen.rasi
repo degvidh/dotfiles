@@ -1,15 +1,15 @@
 * {
-    background: #141318;
-    background-alt: #201f25;
-    background-high: #2a292f;
+    background: #0e1415;
+    background-alt: #1b2122;
+    background-high: #252b2c;
 
-    foreground: #e5e1e9;
-    foreground-alt: #c9c5d0;
+    foreground: #dee3e5;
+    foreground-alt: #bfc8ca;
 
-    primary: #c8bfff;
-    on-primary: #30285f;
+    primary: #82d3e0;
+    on-primary: #00363d;
 
-    secondary: #c9c3dc;
-    outline: #928f99;
+    secondary: #b1cbd0;
+    outline: #899294;
     error: #ffb4ab;
 }
